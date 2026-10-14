@@ -33,33 +33,60 @@
     </main>
 
     <form class="add-form" id="add-form" autocomplete="off">
-      <input
-        type="text"
-        id="add-input"
-        class="add-input"
-        placeholder="新しいタスクを入力"
-        maxlength="200"
-        enterkeyhint="done"
-        aria-label="新しいタスク"
-      >
-      <button type="submit" class="add-button" id="add-button" aria-label="タスクを追加" disabled>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-      </button>
+      <div class="add-context" id="add-context" hidden>
+        <span class="add-context-label">サブタスクを追加：<strong id="add-context-title"></strong></span>
+        <button type="button" class="add-context-clear" id="add-context-clear" aria-label="サブタスクの追加をやめる">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
+        </button>
+      </div>
+      <div class="add-row">
+        <input
+          type="text"
+          id="add-input"
+          class="add-input"
+          placeholder="新しいタスクを入力"
+          maxlength="200"
+          enterkeyhint="done"
+          aria-label="新しいタスク"
+        >
+        <button type="submit" class="add-button" id="add-button" aria-label="タスクを追加" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
     </form>
   </div>
 
-  <dialog class="sheet" id="edit-dialog" aria-labelledby="edit-title">
+  <dialog class="sheet" id="edit-dialog" aria-labelledby="edit-heading" tabindex="-1">
     <form method="dialog" id="edit-form" class="sheet-body" autocomplete="off">
-      <h2 id="edit-title">タスクを編集</h2>
-      <textarea id="edit-input" class="edit-input" rows="3" maxlength="200" aria-label="タスク名" required></textarea>
-      <div class="sheet-actions">
-        <button type="button" class="btn btn-danger" id="edit-delete">削除</button>
-        <span class="spacer"></span>
+      <div class="sheet-header">
         <button type="button" class="btn btn-plain" id="edit-cancel">キャンセル</button>
-        <button type="submit" class="btn btn-primary" id="edit-save">保存</button>
+        <h2 id="edit-heading">タスクの詳細</h2>
+        <button type="submit" class="btn btn-plain btn-strong" id="edit-save">保存</button>
+      </div>
+
+      <label class="field">
+        <span class="field-label">タイトル</span>
+        <textarea id="edit-title-input" class="field-input" rows="2" maxlength="200" required></textarea>
+      </label>
+
+      <label class="field">
+        <span class="field-label">メモ</span>
+        <textarea id="edit-note" class="field-input field-note" rows="5" maxlength="2000" placeholder="メモを入力（任意）"></textarea>
+      </label>
+
+      <label class="field">
+        <span class="field-label">親タスク</span>
+        <select id="edit-parent" class="field-input field-select"></select>
+      </label>
+
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-row" id="edit-add-sub">＋ サブタスクを追加</button>
+        <button type="button" class="btn btn-row btn-danger" id="edit-delete">タスクを削除</button>
       </div>
     </form>
   </dialog>
+
+  <div class="drop-indicator" id="drop-indicator" hidden></div>
 
   <script src="app.js"></script>
 </body>
