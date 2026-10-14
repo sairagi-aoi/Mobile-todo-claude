@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ToDo">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <title>ToDo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1>ToDo</h1>
+      <p class="summary" id="summary" aria-live="polite"></p>
+    </header>
+
+    <nav class="filters" role="tablist" aria-label="表示切り替え">
+      <button type="button" class="filter is-active" data-filter="all" role="tab" aria-selected="true">すべて</button>
+      <button type="button" class="filter" data-filter="active" role="tab" aria-selected="false">未完了</button>
+      <button type="button" class="filter" data-filter="done" role="tab" aria-selected="false">完了</button>
+    </nav>
+
+    <main class="content">
+      <ul class="task-list" id="task-list" aria-label="タスク一覧"></ul>
+      <p class="empty" id="empty" hidden></p>
+      <button type="button" class="clear-done" id="clear-done" hidden>完了したタスクを削除</button>
+    </main>
+
+    <form class="add-form" id="add-form" autocomplete="off">
+      <input
+        type="text"
+        id="add-input"
+        class="add-input"
+        placeholder="新しいタスクを入力"
+        maxlength="200"
+        enterkeyhint="done"
+        aria-label="新しいタスク"
+      >
+      <button type="submit" class="add-button" id="add-button" aria-label="タスクを追加" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </form>
+  </div>
+
+  <dialog class="sheet" id="edit-dialog" aria-labelledby="edit-title">
+    <form method="dialog" id="edit-form" class="sheet-body" autocomplete="off">
+      <h2 id="edit-title">タスクを編集</h2>
+      <textarea id="edit-input" class="edit-input" rows="3" maxlength="200" aria-label="タスク名" required></textarea>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-danger" id="edit-delete">削除</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn btn-plain" id="edit-cancel">キャンセル</button>
+        <button type="submit" class="btn btn-primary" id="edit-save">保存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
