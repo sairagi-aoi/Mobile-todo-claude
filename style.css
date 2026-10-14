@@ -10,8 +10,12 @@
   --done: #34c759;
   --input-bg: #e9e9ee;
   --segment-active: #ffffff;
+  --drag-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   --radius: 14px;
   --tap: 44px;
+  /* 1 階層あたりのインデント幅。app.js の INDENT と合わせる */
+  --indent: 24px;
+  --toggle-width: 28px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
@@ -31,6 +35,7 @@
     --done: #30d158;
     --input-bg: #2c2c2e;
     --segment-active: #636366;
+    --drag-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
   }
 }
 
@@ -58,7 +63,8 @@ body {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
   color: inherit;
 }
@@ -135,7 +141,6 @@ button {
   list-style: none;
   background: var(--surface);
   border-radius: var(--radius);
-  overflow: hidden;
 }
 
 .task-list:empty {
@@ -143,20 +148,63 @@ button {
 }
 
 .task {
+  --depth: 0;
   display: flex;
   align-items: center;
   min-height: 52px;
-  padding-left: 4px;
+  padding-left: calc(var(--depth) * var(--indent));
   position: relative;
+  background: var(--surface);
+}
+
+.task:first-child {
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.task:last-child {
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.task:only-child {
+  border-radius: var(--radius);
 }
 
 .task + .task::before {
   content: "";
   position: absolute;
   top: 0;
-  left: 52px;
+  left: calc(var(--depth) * var(--indent) + var(--toggle-width) + var(--tap));
   right: 0;
   border-top: 0.5px solid var(--separator);
+}
+
+/* 折りたたみボタン（サブタスクがあるタスクだけ表示） */
+.task-toggle {
+  flex: none;
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  width: var(--toggle-width);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-sub);
+}
+
+.task-toggle svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: rotate(90deg);
+  transition: transform 0.15s;
+}
+
+.task-toggle[aria-expanded="false"] svg {
+  transform: rotate(0deg);
 }
 
 .task-check {
@@ -200,21 +248,132 @@ button {
   opacity: 1;
 }
 
-.task-title {
+.task-body {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   min-width: 0;
   min-height: var(--tap);
-  padding: 12px 16px 12px 4px;
+  padding: 10px 12px 10px 4px;
   border: 0;
   background: transparent;
   text-align: left;
+}
+
+.task-title {
   overflow-wrap: anywhere;
-  white-space: pre-wrap;
 }
 
 .task.is-done .task-title {
   color: var(--text-sub);
   text-decoration: line-through;
+}
+
+.task-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin-top: 2px;
+  color: var(--text-sub);
+  font-size: 13px;
+}
+
+.task-progress {
+  flex: none;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: var(--input-bg);
+  font-variant-numeric: tabular-nums;
+}
+
+.task-note {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 絞り込み中に、条件に合うサブタスクの親として表示している行 */
+.task.is-context .task-check,
+.task.is-context .task-title {
+  opacity: 0.5;
+}
+
+/* 並べ替え用のつまみ */
+.task-handle {
+  flex: none;
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  width: var(--tap);
+  color: var(--text-sub);
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.task-handle svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* ドラッグ中 */
+.is-drag-active {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: grabbing;
+}
+
+.task.is-dragging {
+  z-index: 10;
+  border-radius: 10px;
+  box-shadow: var(--drag-shadow);
+  opacity: 0.95;
+}
+
+.task.is-dragging::before,
+.task.is-dragging + .task::before {
+  display: none;
+}
+
+.task.is-dragging .task-handle {
+  cursor: grabbing;
+}
+
+.task.is-drag-hidden {
+  display: none;
+}
+
+.drop-indicator {
+  position: fixed;
+  z-index: 20;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.drop-indicator::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.drop-indicator[hidden] {
+  display: none;
 }
 
 .empty {
@@ -243,13 +402,67 @@ button {
 .add-form {
   position: sticky;
   bottom: 0;
-  display: flex;
-  gap: 8px;
+  z-index: 5;
   padding: 10px 16px calc(var(--safe-bottom) + 10px);
   background: color-mix(in srgb, var(--bg) 85%, transparent);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border-top: 0.5px solid var(--separator);
+}
+
+.add-context {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: -4px 0 6px;
+  padding-left: 12px;
+  border-radius: 10px;
+  background: var(--input-bg);
+  color: var(--text-sub);
+  font-size: 14px;
+}
+
+.add-context[hidden] {
+  display: none;
+}
+
+.add-context-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.add-context-label strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.add-context-clear {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-sub);
+}
+
+.add-context-clear svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.add-row {
+  display: flex;
+  gap: 8px;
 }
 
 .add-input {
@@ -292,16 +505,20 @@ button {
   stroke-linecap: round;
 }
 
-/* 編集シート */
+/* 詳細シート */
 .sheet {
   width: 100%;
   max-width: 640px;
+  max-height: calc(100dvh - var(--safe-top) - 16px);
   margin: auto auto 0;
   padding: 0;
   border: 0;
   border-radius: 16px 16px 0 0;
   background: var(--surface);
   color: var(--text);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  outline: none;
 }
 
 .sheet::backdrop {
@@ -318,17 +535,36 @@ button {
 }
 
 .sheet-body {
-  padding: 20px 16px calc(var(--safe-bottom) + 16px);
+  padding: 4px 16px calc(var(--safe-bottom) + 16px);
 }
 
-.sheet h2 {
-  margin: 0 0 12px;
+.sheet-header {
+  display: flex;
+  align-items: center;
+  margin: 0 -8px 8px;
+}
+
+.sheet-header h2 {
+  flex: 1;
+  margin: 0;
   font-size: 17px;
   font-weight: 600;
   text-align: center;
 }
 
-.edit-input {
+.field {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.field-label {
+  display: block;
+  margin: 0 4px 6px;
+  color: var(--text-sub);
+  font-size: 13px;
+}
+
+.field-input {
   display: block;
   width: 100%;
   padding: 12px;
@@ -340,33 +576,53 @@ button {
   outline: none;
 }
 
-.sheet-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 16px;
+.field-note {
+  min-height: 7.5em;
+  resize: vertical;
 }
 
-.spacer {
-  flex: 1;
+.field-select {
+  min-height: var(--tap);
+  padding-right: 36px;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+.sheet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
 }
 
 .btn {
   min-height: var(--tap);
-  padding: 0 16px;
+  padding: 0 12px;
   border: 0;
   border-radius: 10px;
   background: transparent;
   font-size: 17px;
 }
 
-.btn-primary {
-  background: var(--accent);
-  color: var(--accent-text);
-  font-weight: 600;
+.btn:disabled {
+  opacity: 0.4;
 }
 
 .btn-plain {
+  color: var(--accent);
+}
+
+.btn-strong {
+  font-weight: 600;
+}
+
+.btn-row {
+  width: 100%;
+  background: var(--input-bg);
   color: var(--accent);
 }
 
@@ -377,5 +633,9 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .sheet[open] {
     animation: none;
+  }
+
+  .task-toggle svg {
+    transition: none;
   }
 }
