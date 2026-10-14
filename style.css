@@ -1,0 +1,381 @@
+:root {
+  --bg: #f2f2f7;
+  --surface: #ffffff;
+  --text: #1c1c1e;
+  --text-sub: #8e8e93;
+  --separator: rgba(60, 60, 67, 0.18);
+  --accent: #007aff;
+  --accent-text: #ffffff;
+  --danger: #ff3b30;
+  --done: #34c759;
+  --input-bg: #e9e9ee;
+  --segment-active: #ffffff;
+  --radius: 14px;
+  --tap: 44px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --text: #ffffff;
+    --text-sub: #8e8e93;
+    --separator: rgba(84, 84, 88, 0.6);
+    --accent: #0a84ff;
+    --danger: #ff453a;
+    --done: #30d158;
+    --input-bg: #2c2c2e;
+    --segment-active: #636366;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Helvetica Neue", sans-serif;
+  font-size: 17px;
+  line-height: 1.4;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 640px;
+  margin: 0 auto;
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+}
+
+/* ヘッダー */
+.app-header {
+  padding: calc(var(--safe-top) + 20px) 20px 8px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.summary {
+  margin: 2px 0 0;
+  color: var(--text-sub);
+  font-size: 15px;
+}
+
+/* フィルター（セグメントコントロール風） */
+.filters {
+  display: flex;
+  gap: 2px;
+  margin: 8px 16px 12px;
+  padding: 2px;
+  border-radius: 9px;
+  background: var(--input-bg);
+}
+
+.filter {
+  flex: 1;
+  min-height: 32px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.filter.is-active {
+  background: var(--segment-active);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  font-weight: 600;
+}
+
+/* タスク一覧 */
+.content {
+  flex: 1;
+  padding: 0 16px 16px;
+}
+
+.task-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.task-list:empty {
+  display: none;
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding-left: 4px;
+  position: relative;
+}
+
+.task + .task::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 52px;
+  right: 0;
+  border-top: 0.5px solid var(--separator);
+}
+
+.task-check {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.task-check .circle {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--text-sub);
+  border-radius: 50%;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.task-check svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+}
+
+.task.is-done .task-check .circle {
+  background: var(--done);
+  border-color: var(--done);
+}
+
+.task.is-done .task-check svg {
+  opacity: 1;
+}
+
+.task-title {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--tap);
+  padding: 12px 16px 12px 4px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.task.is-done .task-title {
+  color: var(--text-sub);
+  text-decoration: line-through;
+}
+
+.empty {
+  white-space: pre-line;
+  margin: 48px 0;
+  text-align: center;
+  color: var(--text-sub);
+}
+
+.clear-done {
+  display: block;
+  width: 100%;
+  min-height: var(--tap);
+  margin-top: 16px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--danger);
+}
+
+.clear-done[hidden] {
+  display: none;
+}
+
+/* 追加フォーム（画面下部に固定） */
+.add-form {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px calc(var(--safe-bottom) + 10px);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-top: 0.5px solid var(--separator);
+}
+
+.add-input {
+  flex: 1;
+  min-width: 0;
+  height: var(--tap);
+  padding: 0 16px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--input-bg);
+  /* 16px 以上にして iOS のフォーカス時ズームを防ぐ */
+  font-size: 17px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.add-button {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.add-button:disabled {
+  opacity: 0.4;
+}
+
+.add-button svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--accent-text);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+/* 編集シート */
+.sheet {
+  width: 100%;
+  max-width: 640px;
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 16px 16px 0 0;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.sheet::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.sheet[open] {
+  animation: sheet-up 0.22s ease-out;
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.sheet-body {
+  padding: 20px 16px calc(var(--safe-bottom) + 16px);
+}
+
+.sheet h2 {
+  margin: 0 0 12px;
+  font-size: 17px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.edit-input {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--input-bg);
+  font-size: 17px;
+  resize: none;
+  outline: none;
+}
+
+.sheet-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.btn {
+  min-height: var(--tap);
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 17px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.btn-plain {
+  color: var(--accent);
+}
+
+.btn-danger {
+  color: var(--danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet[open] {
+    animation: none;
+  }
+}
